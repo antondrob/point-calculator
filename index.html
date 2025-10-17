@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KPI Cursor Calculator</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#111720; --muted:#6b7a90; --text:#eaf1ff;
+    --accent:#5aa6ff; --ok:#7bd88f; --warn:#facc15; --bad:#ff6b6b;
+    --border:#1d2633; --chip:#172131; --hl:#0f1a29;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif; background:#0b0f14; color:var(--text)}
+  .wrap{max-width:900px; margin:36px auto; padding:0 16px}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:18px}
+  h1{font-size:20px; margin:0 0 12px}
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .toggle{display:flex; align-items:center; gap:8px; font-size:14px}
+  input[type="checkbox"]{width:18px; height:18px}
+
+  .grid{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
+  .col-4{grid-column:span 4} .col-6{grid-column:span 6} .col-12{grid-column:span 12}
+  @media (max-width:900px){ .col-4,.col-6{grid-column:span 12}}
+
+  label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+  input[type="number"]{
+    width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);
+    background:#0e1420; color:#eaf1ff; font-size:14px; outline:none;
+  }
+  .metric{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px dashed var(--border)}
+  .metric:last-child{border-bottom:0}
+  .name{font-size:14px}
+  .val{font-variant-numeric:tabular-nums; font-weight:700}
+  .ok{color:var(--ok)}
+  .warn{color:var(--warn)}
+  .bad{color:var(--bad)}
+
+  /* скрытые формулы/подсказки */
+  .advanced{display:none; margin-top:14px}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+  .chip{background:var(--chip); border:1px solid var(--border); color:#cfe1ff; padding:6px 10px; border-radius:999px; font-size:12px}
+  .desc{font-size:12px; color:var(--muted)}
+  .row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed var(--border)}
+  .row:last-child{border-bottom:0}
+  .badge{padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:#0f1a29; font-size:12px; color:#cfe1ff; margin-left:6px}
+  .eq-hl{background:var(--hl); border:1px solid var(--border); padding:10px 12px; border-radius:10px}
+  .right{display:flex; align-items:center; gap:8px}
+  .cap{background:#2a79ff22; border:1px solid #2a79ff66; color:#bcd4ff}
+
+  .btns{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+  button{
+    background:#1a2535; border:1px solid var(--border); color:#eaf1ff;
+    padding:10px 12px; border-radius:10px; cursor:pointer; font-size:14px;
+  }
+  button.primary{background:#2a79ff; border-color:#2a79ff}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>KPI: Баллы за экономию и точность с Cursor</h1>
+      <label class="toggle">
+        <input id="toggle-advanced" type="checkbox" />
+        <span>Показать формулы и пояснения</span>
+      </label>
+    </div>
+
+    <div class="panel">
+      <!-- Ввод -->
+      <div class="grid">
+        <div class="col-4">
+          <label for="t0">T₀ — «как без Cursor», часы</label>
+          <input id="t0" type="number" step="0.01" min="0" value="40" />
+        </div>
+        <div class="col-4">
+          <label for="est">Оценка с Cursor (Tᶜ_est), часы</label>
+          <input id="est" type="number" step="0.01" min="0" value="22" />
+        </div>
+        <div class="col-4">
+          <label for="act">Факт с Cursor (Tᶜ_act), часы</label>
+          <input id="act" type="number" step="0.01" min="0.01" value="20" />
+        </div>
+      </div>
+
+      <!-- Упрощённый UI: слева — метрики, справа — подсчёт баллов -->
+      <div class="grid" style="margin-top:12px">
+        <!-- ЛЕВАЯ КОЛОНКА: информативные метрики -->
+        <div class="col-6">
+          <div class="metric"><div class="name">Сэкономили часов</div><div class="val" id="v-save">—</div></div>
+          <div class="metric"><div class="name">Точность оценки (%)</div><div class="val" id="v-acc">—</div></div>
+          <div class="metric"><div class="name">Коэффициент за точность (k)</div><div class="val" id="v-k2">—</div></div>
+        </div>
+        <!-- ПРАВАЯ КОЛОНКА: баллы -->
+        <div class="col-6">
+          <div class="metric"><div class="name">Баллы за экономию (Base)</div><div class="val" id="v-base">—</div></div>
+          <div class="metric"><div class="name">Баллы за точность (AccuracyBonus)</div><div class="val" id="v-bonus">—</div></div>
+          <div class="metric"><div class="name">Итоговые баллы</div><div class="val" id="v-total">—</div></div>
+        </div>
+      </div>
+
+      <!-- Доп-инфа: показывает все формулы и детали -->
+      <div class="advanced" id="advanced">
+        <div class="chips">
+          <span class="chip">Δsave = max(0, T₀ − Tᶜ_act)</span>
+          <span class="chip">Base = 0.1 × Δsave</span>
+          <span class="chip">A = max(0, 1 − |Est − Act| / Act)</span>
+          <span class="chip">V = min(Est, Act)</span>
+          <span class="chip">k(A): 0.08 / 0.05 / 0.03 / 0.01 / 0</span>
+          <span class="chip">AccuracyBonus = min(k·V, Base)</span>
+        </div>
+
+        <div class="grid">
+          <div class="col-6">
+            <div class="row"><div class="desc">Δsave = MAX(0; T₀ − Tᶜ_act)</div><div class="val" id="v-save-adv">—</div></div>
+            <div class="row"><div class="desc">Base = 0.1 × Δsave</div><div class="val" id="v-base-adv">—</div></div>
+            <div class="row"><div class="desc">A = MAX(0; 1 − |Est − Act| / Act)</div><div class="val" id="v-acc-adv">—</div></div>
+            <div class="row"><div class="desc">V = MIN(Tᶜ_est; Tᶜ_act)</div><div class="val" id="v-vol-adv">—</div></div>
+          </div>
+          <div class="col-6">
+            <div class="row">
+              <div class="desc">k(A) <span class="badge" id="v-k-badge">k = —</span></div>
+              <div class="val" id="v-k-adv">—</div>
+            </div>
+            <div class="row"><div class="desc">Бонус сырой = k × V</div><div class="val" id="v-bonus-raw-adv">—</div></div>
+            <div class="row"><div class="desc">AccuracyBonus = MIN(Бонус сырой; Base)</div><div class="right"><div class="val" id="v-bonus-adv">—</div><span class="badge cap" id="cap-badge" style="display:none">capped</span></div></div>
+            <div class="row eq-hl"><div class="desc"><b>Итог = Base + AccuracyBonus</b></div><div class="val" id="v-total-adv">—</div></div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="preset1">Пример 1 (40 / 22 / 20)</button>
+          <button id="preset2">Пример 2 (24 / 12 / 18)</button>
+          <button id="preset3">Пример 3 (10 / 6 / 6)</button>
+          <button id="reset">Сбросить</button>
+          <button id="copy">Скопировать значения</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function toNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function round(n, p=2){ return Number.isFinite(n) ? +(Math.round((n + Number.EPSILON) * Math.pow(10,p)) / Math.pow(10,p)) : 0; }
+  function kByAccuracy(a){
+    if (a >= 0.95) return 0.08;
+    if (a >= 0.90) return 0.05;
+    if (a >= 0.80) return 0.03;
+    if (a >= 0.70) return 0.01;
+    return 0.0;
+  }
+  function accClass(a){
+    if (a >= 0.90) return "ok";
+    if (a >= 0.70) return "warn";
+    return "bad";
+  }
+
+  function recalc(){
+    const t0 = Math.max(0, toNum($("t0").value));
+    const est = Math.max(0, toNum($("est").value));
+    const act = Math.max(0.0000001, toNum($("act").value)); // защита от деления на 0
+
+    const save = Math.max(0, t0 - act);
+    const base = 0.1 * save;
+
+    const acc = Math.max(0, 1 - Math.abs(est - act) / act);
+    const V = Math.min(est, act);
+    const k = kByAccuracy(acc);
+    const bonusRaw = k * V;
+    const bonus = Math.min(bonusRaw, base);
+    const total = base + bonus;
+
+    // Упрощённый UI
+    $("v-save").textContent  = round(save,2) + " ч";
+
+    const accPct = (round(acc,4)*100).toFixed(2) + " %";
+    const aClass = accClass(acc);
+    $("v-acc").textContent = accPct;
+    $("v-acc").className = "val " + aClass;
+
+    $("v-k2").textContent    = k.toFixed(2);
+
+    $("v-base").textContent  = round(base,2).toFixed(2);
+    $("v-bonus").textContent = round(bonus,2).toFixed(2);
+    $("v-total").textContent = round(total,2).toFixed(2);
+
+    // Расширенный блок (формулы)
+    $("v-save-adv").textContent  = round(save,2) + " ч";
+    $("v-base-adv").textContent  = round(base,2).toFixed(2);
+    $("v-acc-adv").textContent   = accPct;
+    $("v-acc-adv").className = "val " + aClass;
+    $("v-vol-adv").textContent   = round(V,2) + " ч";
+    $("v-k-adv").textContent     = k.toFixed(2);
+    $("v-k-badge").textContent   = "k = " + k.toFixed(2);
+    $("v-bonus-raw-adv").textContent = round(bonusRaw,2).toFixed(2);
+    $("v-bonus-adv").textContent = round(bonus,2).toFixed(2);
+    $("v-total-adv").textContent = round(total,2).toFixed(2);
+
+    // бейдж урезания бонуса
+    $("cap-badge").style.display = (bonus > 0 && Math.abs(bonus - base) < 1e-9) ? "inline-block" : "none";
+  }
+
+  // Переключатель формул
+  $("toggle-advanced").addEventListener("change", (e)=>{
+    $("advanced").style.display = e.target.checked ? "block" : "none";
+  });
+
+  // Пресеты/копирование
+  function bindButtons(){
+    $("preset1").addEventListener("click", ()=>{ $("t0").value=40; $("est").value=22; $("act").value=20; recalc(); });
+    $("preset2").addEventListener("click", ()=>{ $("t0").value=24; $("est").value=12; $("act").value=18; recalc(); });
+    $("preset3").addEventListener("click", ()=>{ $("t0").value=10; $("est").value=6; $("act").value=6; recalc(); });
+    $("reset").addEventListener("click", ()=>{ $("t0").value=""; $("est").value=""; $("act").value=""; recalc(); });
+    $("copy").addEventListener("click", async ()=>{
+      const text = [
+        `T0: ${$("t0").value}`, `Est: ${$("est").value}`, `Act: ${$("act").value}`,
+        `Δsave: ${$("v-save").textContent}`, `Base: ${$("v-base").textContent}`,
+        `Accuracy: ${$("v-acc").textContent}`, `k: ${$("v-k2").textContent}`,
+        `AccuracyBonus: ${$("v-bonus").textContent}`, `Total: ${$("v-total").textContent}`
+      ].join("\n");
+      try{ await navigator.clipboard.writeText(text); alert("Скопировано ✓"); }
+      catch(e){ alert("Не удалось скопировать: " + e); }
+    });
+  }
+
+  ["t0","est","act"].forEach(id=>{
+    $(id).addEventListener("input", recalc);
+    $(id).addEventListener("change", recalc);
+  });
+
+  recalc();
+  bindButtons();
+</script>
+</body>
+</html>
