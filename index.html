@@ -71,15 +71,15 @@
       <div class="grid">
         <div class="col-4">
           <label for="t0">T₀ — «как без Cursor», часы</label>
-          <input id="t0" type="number" step="0.01" min="0" value="40" />
+          <input id="t0"  type="number" step="0.01" min="0" />
         </div>
         <div class="col-4">
           <label for="est">Оценка с Cursor (Tᶜ_est), часы</label>
-          <input id="est" type="number" step="0.01" min="0" value="22" />
+          <input id="est" type="number" step="0.01" min="0" />
         </div>
         <div class="col-4">
           <label for="act">Факт с Cursor (Tᶜ_act), часы</label>
-          <input id="act" type="number" step="0.01" min="0.01" value="20" />
+          <input id="act" type="number" step="0.01" min="0.01" />
         </div>
       </div>
 
@@ -138,7 +138,6 @@
       </div>
     </div>
   </div>
-
 <script>
   const $ = (id) => document.getElementById(id);
 
@@ -157,10 +156,81 @@
     return "bad";
   }
 
+  // --- helpers to render blanks
+  function setText(id, val){ const el = document.getElementById(id); if (el) el.textContent = val; }
+  function clearOutputs(){
+    ["v-save","v-base","v-bonus","v-total","v-acc","v-k2",
+     "v-save-adv","v-base-adv","v-acc-adv","v-vol-adv","v-k-adv","v-k-badge","v-bonus-raw-adv","v-bonus-adv","v-total-adv"
+    ].forEach(id => { const el = document.getElementById(id); if (el){ el.textContent = "—"; el.className = el.className.replace(/\b(ok|warn|bad)\b/g,"").trim(); }});
+    const cap = document.getElementById("cap-badge"); if (cap) cap.style.display = "none";
+  }
+
+  // ---- Read query params (empty means empty inputs)
+  function readQueryParams() {
+    const q = new URLSearchParams(window.location.search);
+    const getOr = (a,b) => q.has(a) ? q.get(a) : (q.has(b) ? q.get(b) : null);
+
+    const t0  = getOr("t0","t1");
+    const est = getOr("est","t2");
+    const act = getOr("act","t3");
+
+    if (t0  !== null)  document.getElementById("t0").value  = t0;
+    if (est !== null)  document.getElementById("est").value = est;
+    if (act !== null)  document.getElementById("act").value = act;
+
+    const show = q.get("show");
+    if (show === "1" || show === "true") {
+        const cb = document.getElementById("toggle-advanced");
+        const adv = document.getElementById("advanced");
+        if (cb) cb.checked = true;
+        if (adv) adv.style.display = "block";
+    }
+  }
+
+  // ---- Write query params (only non-empty values)
+  function writeQueryParams() {
+    const q = new URLSearchParams();
+
+    const t0  = document.getElementById("t0").value?.trim()  || "";
+    const est = document.getElementById("est").value?.trim() || "";
+    const act = document.getElementById("act").value?.trim() || "";
+
+    if (t0)  q.set("t0",  t0);
+    if (est) q.set("est", est);
+    if (act) q.set("act", act);
+
+    const advOn = document.getElementById("toggle-advanced")?.checked;
+    if (advOn) q.set("show","1");
+
+    const query = q.toString();
+    const hash  = window.location.hash || "";
+    const newUrl = query ? `${location.pathname}?${query}${hash}`
+                        : `${location.pathname}${hash}`;
+    history.replaceState(null, "", newUrl);
+  }
+
+  function canCalc(){
+    // все три поля должны быть непустыми
+    return $("t0").value !== "" && $("est").value !== "" && $("act").value !== "";
+  }
+
   function recalc(){
+    // URL держим в синхроне всегда
+    writeQueryParams();
+
+    if (!canCalc()){
+      clearOutputs();
+      return;
+    }
+
     const t0 = Math.max(0, toNum($("t0").value));
     const est = Math.max(0, toNum($("est").value));
-    const act = Math.max(0.0000001, toNum($("act").value)); // защита от деления на 0
+    const actRaw = Number($("act").value);
+    if (!Number.isFinite(actRaw) || actRaw <= 0){
+      clearOutputs(); // защита от деления на 0 и нечисел
+      return;
+    }
+    const act = actRaw;
 
     const save = Math.max(0, t0 - act);
     const base = 0.1 * save;
@@ -172,66 +242,86 @@
     const bonus = Math.min(bonusRaw, base);
     const total = base + bonus;
 
-    // Упрощённый UI
-    $("v-save").textContent  = round(save,2) + " ч";
+    // Лёгкий UI
+    setText("v-save",  round(save,2) + " ч");
 
-    const accPct = (round(acc,4)*100).toFixed(2) + " %";
+    const accPctText = (round(acc,4)*100).toFixed(2) + " %";
     const aClass = accClass(acc);
-    $("v-acc").textContent = accPct;
-    $("v-acc").className = "val " + aClass;
+    const accEl = $("v-acc"); accEl.textContent = accPctText; accEl.className = "val " + aClass;
 
-    $("v-k2").textContent    = k.toFixed(2);
+    setText("v-k2",    k.toFixed(2));
+    setText("v-base",  round(base,2).toFixed(2));
+    setText("v-bonus", round(bonus,2).toFixed(2));
+    setText("v-total", round(total,2).toFixed(2));
 
-    $("v-base").textContent  = round(base,2).toFixed(2);
-    $("v-bonus").textContent = round(bonus,2).toFixed(2);
-    $("v-total").textContent = round(total,2).toFixed(2);
+    // Расширенный (если есть)
+    setText("v-save-adv",  round(save,2) + " ч");
+    setText("v-base-adv",  round(base,2).toFixed(2));
+    const accAdv = $("v-acc-adv"); if (accAdv){ accAdv.textContent = accPctText; accAdv.className = "val " + aClass; }
+    setText("v-vol-adv",   round(V,2) + " ч");
+    setText("v-k-adv",     k.toFixed(2));
+    const kBadge = $("v-k-badge"); if (kBadge) kBadge.textContent = "k = " + k.toFixed(2);
+    setText("v-bonus-raw-adv", round(bonusRaw,2).toFixed(2));
+    setText("v-bonus-adv",     round(bonus,2).toFixed(2));
+    setText("v-total-adv",     round(total,2).toFixed(2));
 
-    // Расширенный блок (формулы)
-    $("v-save-adv").textContent  = round(save,2) + " ч";
-    $("v-base-adv").textContent  = round(base,2).toFixed(2);
-    $("v-acc-adv").textContent   = accPct;
-    $("v-acc-adv").className = "val " + aClass;
-    $("v-vol-adv").textContent   = round(V,2) + " ч";
-    $("v-k-adv").textContent     = k.toFixed(2);
-    $("v-k-badge").textContent   = "k = " + k.toFixed(2);
-    $("v-bonus-raw-adv").textContent = round(bonusRaw,2).toFixed(2);
-    $("v-bonus-adv").textContent = round(bonus,2).toFixed(2);
-    $("v-total-adv").textContent = round(total,2).toFixed(2);
-
-    // бейдж урезания бонуса
-    $("cap-badge").style.display = (bonus > 0 && Math.abs(bonus - base) < 1e-9) ? "inline-block" : "none";
+    const cap = $("cap-badge");
+    if (cap) cap.style.display = (bonus > 0 && Math.abs(bonus - base) < 1e-9) ? "inline-block" : "none";
   }
 
   // Переключатель формул
-  $("toggle-advanced").addEventListener("change", (e)=>{
-    $("advanced").style.display = e.target.checked ? "block" : "none";
-  });
+  const toggle = document.getElementById("toggle-advanced");
+  if (toggle) {
+    toggle.addEventListener("change", (e)=>{
+      const adv = document.getElementById("advanced");
+      if (adv) adv.style.display = e.target.checked ? "block" : "none";
+      writeQueryParams(); // обновим ?show=1|— в URL
+    });
+  }
 
-  // Пресеты/копирование
+  // Пресеты/копирование (если есть)
   function bindButtons(){
-    $("preset1").addEventListener("click", ()=>{ $("t0").value=40; $("est").value=22; $("act").value=20; recalc(); });
-    $("preset2").addEventListener("click", ()=>{ $("t0").value=24; $("est").value=12; $("act").value=18; recalc(); });
-    $("preset3").addEventListener("click", ()=>{ $("t0").value=10; $("est").value=6; $("act").value=6; recalc(); });
-    $("reset").addEventListener("click", ()=>{ $("t0").value=""; $("est").value=""; $("act").value=""; recalc(); });
-    $("copy").addEventListener("click", async ()=>{
+    const p1 = document.getElementById("preset1");
+    const p2 = document.getElementById("preset2");
+    const p3 = document.getElementById("preset3");
+    const reset = document.getElementById("reset");
+    const copy = document.getElementById("copy");
+
+    if (p1) p1.addEventListener("click", ()=>{ $("t0").value=40; $("est").value=22; $("act").value=20; recalc(); });
+    if (p2) p2.addEventListener("click", ()=>{ $("t0").value=24; $("est").value=12; $("act").value=18; recalc(); });
+    if (p3) p3.addEventListener("click", ()=>{ $("t0").value=10; $("est").value=6; $("act").value=6; recalc(); });
+    if (reset) reset.addEventListener("click", ()=>{ $("t0").value=""; $("est").value=""; $("act").value=""; recalc(); });
+    if (copy)  copy.addEventListener("click", async ()=>{
       const text = [
-        `T0: ${$("t0").value}`, `Est: ${$("est").value}`, `Act: ${$("act").value}`,
-        `Δsave: ${$("v-save").textContent}`, `Base: ${$("v-base").textContent}`,
-        `Accuracy: ${$("v-acc").textContent}`, `k: ${$("v-k2").textContent}`,
-        `AccuracyBonus: ${$("v-bonus").textContent}`, `Total: ${$("v-total").textContent}`
+        `Link: ${location.href}`,
+        `T0: ${$("t0").value||""}`, `Est: ${$("est").value||""}`, `Act: ${$("act").value||""}`,
+        `Δsave: ${document.getElementById("v-save").textContent}`,
+        `Base: ${document.getElementById("v-base").textContent}`,
+        `Accuracy: ${document.getElementById("v-acc").textContent}`,
+        `k: ${document.getElementById("v-k2").textContent}`,
+        `AccuracyBonus: ${document.getElementById("v-bonus").textContent}`,
+        `Total: ${document.getElementById("v-total").textContent}`
       ].join("\n");
       try{ await navigator.clipboard.writeText(text); alert("Скопировано ✓"); }
       catch(e){ alert("Не удалось скопировать: " + e); }
     });
   }
 
+  // Инициализация
+  readQueryParams();
+  bindButtons();
+
+  // Навешиваем обработчики на инпуты
   ["t0","est","act"].forEach(id=>{
-    $(id).addEventListener("input", recalc);
-    $(id).addEventListener("change", recalc);
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("input", recalc);
+      el.addEventListener("change", recalc);
+    }
   });
 
+  // Первый пересчёт (ничего не запишет в URL, если поля пустые)
   recalc();
-  bindButtons();
 </script>
 </body>
 </html>
