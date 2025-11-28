@@ -1,71 +1,276 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KPI Cursor Calculator</title>
-<style>
-  :root{
-    --bg:#0b0f14; --panel:#111720; --muted:#6b7a90; --text:#eaf1ff;
-    --accent:#5aa6ff; --ok:#7bd88f; --warn:#facc15; --bad:#ff6b6b;
-    --border:#1d2633; --chip:#172131; --hl:#0f1a29;
-  }
-  *{box-sizing:border-box}
-  body{margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif; background:#0b0f14; color:var(--text)}
-  .wrap{max-width:900px; margin:36px auto; padding:0 16px}
-  .panel{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:18px}
-  h1{font-size:20px; margin:0 0 12px}
-  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
-  .toggle{display:flex; align-items:center; gap:8px; font-size:14px}
-  input[type="checkbox"]{width:18px; height:18px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KPI Cursor Calculator</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111720;
+      --muted: #6b7a90;
+      --text: #eaf1ff;
+      --accent: #5aa6ff;
+      --ok: #7bd88f;
+      --warn: #facc15;
+      --bad: #ff6b6b;
+      --border: #1d2633;
+      --chip: #172131;
+      --hl: #0f1a29;
+    }
 
-  .grid{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
-  .col-4{grid-column:span 4} .col-6{grid-column:span 6} .col-12{grid-column:span 12}
-  @media (max-width:900px){ .col-4,.col-6{grid-column:span 12}}
+    * {
+      box-sizing: border-box
+    }
 
-  label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
-  input[type="number"]{
-    width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);
-    background:#0e1420; color:#eaf1ff; font-size:14px; outline:none;
-  }
-  .metric{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px dashed var(--border)}
-  .metric:last-child{border-bottom:0}
-  .name{font-size:14px}
-  .val{font-variant-numeric:tabular-nums; font-weight:700}
-  .ok{color:var(--ok)}
-  .warn{color:var(--warn)}
-  .bad{color:var(--bad)}
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background: #0b0f14;
+      color: var(--text)
+    }
 
-  /* скрытые формулы/подсказки */
-  .advanced{display:none; margin-top:14px}
-  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
-  .chip{background:var(--chip); border:1px solid var(--border); color:#cfe1ff; padding:6px 10px; border-radius:999px; font-size:12px}
-  .desc{font-size:12px; color:var(--muted)}
-  .row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed var(--border)}
-  .row:last-child{border-bottom:0}
-  .badge{padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:#0f1a29; font-size:12px; color:#cfe1ff; margin-left:6px}
-  .eq-hl{background:var(--hl); border:1px solid var(--border); padding:10px 12px; border-radius:10px}
-  .right{display:flex; align-items:center; gap:8px}
-  .cap{background:#2a79ff22; border:1px solid #2a79ff66; color:#bcd4ff}
+    .wrap {
+      max-width: 900px;
+      margin: 36px auto;
+      padding: 0 16px
+    }
 
-  .btns{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
-  button{
-    background:#1a2535; border:1px solid var(--border); color:#eaf1ff;
-    padding:10px 12px; border-radius:10px; cursor:pointer; font-size:14px;
-  }
-  button.primary{background:#2a79ff; border-color:#2a79ff}
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px
+    }
 
-  /* Табы */
-  .tabs{display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid var(--border); padding-bottom:0}
-  .tab{
-    background:transparent; border:none; color:var(--muted); padding:12px 20px;
-    cursor:pointer; font-size:15px; font-weight:500; border-bottom:2px solid transparent;
-    margin-bottom:-2px; transition:all 0.2s;
-  }
-  .tab:hover{color:var(--text); background:var(--hl)}
-  .tab.active{color:var(--accent); border-bottom-color:var(--accent)}
-</style>
+    h1 {
+      font-size: 20px;
+      margin: 0 0 12px
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(12, 1fr)
+    }
+
+    .col-4 {
+      grid-column: span 4
+    }
+
+    .col-6 {
+      grid-column: span 6
+    }
+
+    .col-12 {
+      grid-column: span 12
+    }
+
+    @media (max-width:900px) {
+
+      .col-4,
+      .col-6 {
+        grid-column: span 12
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0e1420;
+      color: #eaf1ff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .metric {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border)
+    }
+
+    .metric:last-child {
+      border-bottom: 0
+    }
+
+    .name {
+      font-size: 14px
+    }
+
+    .val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700
+    }
+
+    .ok {
+      color: var(--ok)
+    }
+
+    .warn {
+      color: var(--warn)
+    }
+
+    .bad {
+      color: var(--bad)
+    }
+
+    /* скрытые формулы/подсказки */
+    .advanced {
+      display: none;
+      margin-top: 14px
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      color: #cfe1ff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px
+    }
+
+    .desc {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border)
+    }
+
+    .row:last-child {
+      border-bottom: 0
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0f1a29;
+      font-size: 12px;
+      color: #cfe1ff;
+      margin-left: 6px
+    }
+
+    .eq-hl {
+      background: var(--hl);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .cap {
+      background: #2a79ff22;
+      border: 1px solid #2a79ff66;
+      color: #bcd4ff
+    }
+
+    .btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap
+    }
+
+    button {
+      background: #1a2535;
+      border: 1px solid var(--border);
+      color: #eaf1ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button.primary {
+      background: #2a79ff;
+      border-color: #2a79ff
+    }
+
+    /* Табы */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0
+    }
+
+    .tab {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+      background: var(--hl)
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent)
+    }
+  </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="top">
@@ -88,7 +293,7 @@
       <div class="grid">
         <div class="col-4">
           <label for="t0">T₀ — «как без Cursor», часы</label>
-          <input id="t0"  type="number" step="0.01" min="0" />
+          <input id="t0" type="number" step="0.01" min="0" />
         </div>
         <div class="col-4">
           <label for="est">Оценка с Cursor (Tᶜ_est), часы</label>
@@ -104,15 +309,33 @@
       <div class="grid" style="margin-top:12px">
         <!-- ЛЕВАЯ КОЛОНКА: информативные метрики -->
         <div class="col-6">
-          <div class="metric"><div class="name">Сэкономили часов</div><div class="val" id="v-save">—</div></div>
-          <div class="metric"><div class="name">Точность оценки (%)</div><div class="val" id="v-acc">—</div></div>
-          <div class="metric"><div class="name">Коэффициент за точность (k)</div><div class="val" id="v-k2">—</div></div>
+          <div class="metric">
+            <div class="name">Сэкономили часов</div>
+            <div class="val" id="v-save">—</div>
+          </div>
+          <div class="metric">
+            <div class="name">Точность оценки (%)</div>
+            <div class="val" id="v-acc">—</div>
+          </div>
+          <div class="metric">
+            <div class="name">Коэффициент за точность (k)</div>
+            <div class="val" id="v-k2">—</div>
+          </div>
         </div>
         <!-- ПРАВАЯ КОЛОНКА: баллы -->
         <div class="col-6">
-          <div class="metric"><div class="name">Баллы за экономию (Base)</div><div class="val" id="v-base">—</div></div>
-          <div class="metric"><div class="name">Баллы за точность (AccuracyBonus)</div><div class="val" id="v-bonus">—</div></div>
-          <div class="metric"><div class="name">Итоговые баллы</div><div class="val" id="v-total">—</div></div>
+          <div class="metric">
+            <div class="name">Баллы за экономию (Base)</div>
+            <div class="val" id="v-base">—</div>
+          </div>
+          <div class="metric">
+            <div class="name">Баллы за точность (AccuracyBonus)</div>
+            <div class="val" id="v-bonus">—</div>
+          </div>
+          <div class="metric">
+            <div class="name">Итоговые баллы</div>
+            <div class="val" id="v-total">—</div>
+          </div>
         </div>
       </div>
 
@@ -129,19 +352,43 @@
 
         <div class="grid">
           <div class="col-6">
-            <div class="row"><div class="desc">Δsave = MAX(0; T₀ − Tᶜ_act)</div><div class="val" id="v-save-adv">—</div></div>
-            <div class="row"><div class="desc">Base = 0.1 × Δsave</div><div class="val" id="v-base-adv">—</div></div>
-            <div class="row"><div class="desc">A = MAX(0; 1 − |Est − Act| / Act)</div><div class="val" id="v-acc-adv">—</div></div>
-            <div class="row"><div class="desc">V = MIN(Tᶜ_est; Tᶜ_act)</div><div class="val" id="v-vol-adv">—</div></div>
+            <div class="row">
+              <div class="desc">Δsave = MAX(0; T₀ − Tᶜ_act)</div>
+              <div class="val" id="v-save-adv">—</div>
+            </div>
+            <div class="row">
+              <div class="desc">Base = 0.1 × Δsave</div>
+              <div class="val" id="v-base-adv">—</div>
+            </div>
+            <div class="row">
+              <div class="desc">A = MAX(0; 1 − |Est − Act| / Act)</div>
+              <div class="val" id="v-acc-adv">—</div>
+            </div>
+            <div class="row">
+              <div class="desc">V = MIN(Tᶜ_est; Tᶜ_act)</div>
+              <div class="val" id="v-vol-adv">—</div>
+            </div>
           </div>
           <div class="col-6">
             <div class="row">
               <div class="desc">k(A) <span class="badge" id="v-k-badge">k = —</span></div>
               <div class="val" id="v-k-adv">—</div>
             </div>
-            <div class="row"><div class="desc">Бонус сырой = k × V</div><div class="val" id="v-bonus-raw-adv">—</div></div>
-            <div class="row"><div class="desc">AccuracyBonus = MIN(Бонус сырой; Base)</div><div class="right"><div class="val" id="v-bonus-adv">—</div><span class="badge cap" id="cap-badge" style="display:none">capped</span></div></div>
-            <div class="row eq-hl"><div class="desc"><b>Итог = Base + AccuracyBonus</b></div><div class="val" id="v-total-adv">—</div></div>
+            <div class="row">
+              <div class="desc">Бонус сырой = k × V</div>
+              <div class="val" id="v-bonus-raw-adv">—</div>
+            </div>
+            <div class="row">
+              <div class="desc">AccuracyBonus = MIN(Бонус сырой; Base)</div>
+              <div class="right">
+                <div class="val" id="v-bonus-adv">—</div><span class="badge cap" id="cap-badge"
+                  style="display:none">capped</span>
+              </div>
+            </div>
+            <div class="row eq-hl">
+              <div class="desc"><b>Итог = Base + AccuracyBonus</b></div>
+              <div class="val" id="v-total-adv">—</div>
+            </div>
           </div>
         </div>
 
@@ -157,21 +404,28 @@
 
     <!-- ФОРМА ДЛЯ ПРОЕКТНЫХ МЕНЕДЖЕРОВ -->
     <div class="panel" id="pm-panel" style="display:none">
-      <div style="background:var(--hl); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px">
+      <div
+        style="background:var(--hl); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px">
         <div style="font-size:14px; font-weight:600; margin-bottom:6px">KPI: Выставить 95% разработки на проекте</div>
         <div style="font-size:13px; color:var(--muted); line-height:1.5">
           Баллы начисляются за достижение KPI на каждом проекте. Формула учитывает объем проекта:
           большие проекты дают больше баллов, маленькие — меньше.
         </div>
       </div>
-      
+
       <!-- Добавление проектов -->
       <div style="margin-bottom:16px">
         <label>Добавить проект</label>
         <div class="grid" style="margin-top:8px">
-          <div class="col-12">
+          <div class="col-6">
+            <label for="pm-manager-name" style="margin-bottom:4px">Фамилия ПМ</label>
+            <input id="pm-manager-name" type="text" placeholder="Иванов"
+              style="padding:12px; border-radius:10px; border:1px solid var(--border); background:#0e1420; color:#eaf1ff; font-size:14px; outline:none; width:100%" />
+          </div>
+          <div class="col-6">
             <label for="pm-project-name" style="margin-bottom:4px">Название проекта</label>
-            <input id="pm-project-name" type="text" placeholder="Название проекта" style="padding:12px; border-radius:10px; border:1px solid var(--border); background:#0e1420; color:#eaf1ff; font-size:14px; outline:none; width:100%" />
+            <input id="pm-project-name" type="text" placeholder="Название проекта"
+              style="padding:12px; border-radius:10px; border:1px solid var(--border); background:#0e1420; color:#eaf1ff; font-size:14px; outline:none; width:100%" />
           </div>
           <div class="col-6">
             <label for="pm-project-spent">Фактически потрачено, ч</label>
@@ -195,18 +449,39 @@
       <!-- Итоги -->
       <div class="grid">
         <div class="col-6">
-          <div class="metric"><div class="name">Всего проектов</div><div class="val" id="pm-total-projects">0</div></div>
-          <div class="metric"><div class="name">Всего часов</div><div class="val" id="pm-total-hours">0 ч</div></div>
+          <div class="metric">
+            <div class="name">Всего проектов</div>
+            <div class="val" id="pm-total-projects">0</div>
+          </div>
+          <div class="metric">
+            <div class="name">Всего часов</div>
+            <div class="val" id="pm-total-hours">0 ч</div>
+          </div>
         </div>
         <div class="col-6">
-          <div class="metric"><div class="name">Средняя длительность проекта</div><div class="val" id="pm-avg-hours">—</div></div>
-          <div class="metric"><div class="name"><b>Итоговые баллы</b></div><div class="val" id="pm-total-points">0.00</div></div>
+          <div class="metric">
+            <div class="name">Средняя длительность проекта</div>
+            <div class="val" id="pm-avg-hours">—</div>
+          </div>
+          <div class="metric">
+            <div class="name"><b>Итоговые баллы</b></div>
+            <div class="val" id="pm-total-points">0.00</div>
+          </div>
         </div>
       </div>
 
       <div class="btns">
         <button id="pm-share-link" class="primary">📋 Скопировать ссылку для шаринга</button>
-        <button id="pm-clear-all" style="background:#ff6b6b22; border-color:#ff6b6b66; color:#ff6b6b">Очистить все проекты</button>
+        <button id="pm-clear-all" style="background:#ff6b6b22; border-color:#ff6b6b66; color:#ff6b6b">Очистить все
+          проекты</button>
+      </div>
+
+      <!-- Баллы по ПМ -->
+      <div id="pm-managers-stats" style="margin-top:20px; display:none">
+        <div style="font-size:16px; font-weight:600; margin-bottom:12px">Баллы по менеджерам</div>
+        <div id="pm-managers-list" style="display:grid; gap:8px">
+          <!-- Список ПМ будет здесь -->
+        </div>
       </div>
 
       <!-- Детали формулы -->
@@ -223,28 +498,33 @@
         <div style="margin-bottom:16px">
           <div style="font-size:14px; font-weight:600; margin-bottom:12px">Формула начисления баллов</div>
           <div class="chips">
-            <span class="chip">h &lt; 50: Баллы = 0.15 × √часы</span>
-            <span class="chip">h ≥ 50: Баллы = 0.3 × √часы</span>
+            <span class="chip">h &lt; 10: 0.05 × √h</span>
+            <span class="chip">10 ≤ h &lt; 30: 0.1 × √h</span>
+            <span class="chip">30 ≤ h &lt; 50: 0.15 × √h</span>
+            <span class="chip">h ≥ 50: 0.3 × √h</span>
             <span class="chip">При KPI ≥ 95%</span>
           </div>
-          <div style="margin-top:10px; padding:10px 12px; background:var(--chip); border:1px solid var(--border); border-radius:8px; font-size:12px; color:var(--muted)">
+          <div
+            style="margin-top:10px; padding:10px 12px; background:var(--chip); border:1px solid var(--border); border-radius:8px; font-size:12px; color:var(--muted)">
             <b>KPI %</b> = (Выставлено / Потрачено) × 100
           </div>
         </div>
 
-        <div style="margin-bottom:16px; padding:14px; background:var(--hl); border-radius:10px; border:1px solid var(--border)">
+        <div
+          style="margin-bottom:16px; padding:14px; background:var(--hl); border-radius:10px; border:1px solid var(--border)">
           <div style="font-size:13px; font-weight:600; margin-bottom:8px; color:var(--accent)">Решаемая проблема:</div>
           <div style="font-size:13px; color:var(--muted); line-height:1.6">
-            <b>Старая система:</b> Каждый проект = 1 балл независимо от объема<br/>
-            • Менеджер с 1 проектом на 1000 часов → 1 балл ❌<br/>
-            • Менеджер с 10 проектами по 5 часов → 10 баллов ❌<br/>
-            <br/>
-            <b style="color:var(--ok)">Новая динамическая формула:</b> Баллы растут с объемом, малые проекты дают меньше<br/>
-            • Проект 10 часов → 0.47 балла (малый коэфф.)<br/>
-            • Проект 100 часов → 3.0 балла ✅<br/>
-            • Проект 1000 часов → 9.49 балла (в 3+ раза больше!) ✅<br/>
-            • 10 проектов по 5 часов → 0.34 × 10 = 3.4 балла<br/>
-            <br/>
+            <b>Старая система:</b> Каждый проект = 1 балл независимо от объема<br />
+            • Менеджер с 1 проектом на 1000 часов → 1 балл ❌<br />
+            • Менеджер с 10 проектами по 5 часов → 10 баллов ❌<br />
+            <br />
+            <b style="color:var(--ok)">Новая динамическая формула:</b> Баллы растут с объемом, малые проекты дают
+            меньше<br />
+            • Проект 10 часов → 0.32 балла (коэфф. 0.1)<br />
+            • Проект 100 часов → 3.0 балла ✅<br />
+            • Проект 1000 часов → 9.49 балла (в 3+ раза больше!) ✅<br />
+            • 10 проектов по 5 часов → 0.11 × 10 = 1.1 балла<br />
+            <br />
             Формула справедливо награждает за крупные проекты и не переоценивает мелкие.
           </div>
         </div>
@@ -252,291 +532,293 @@
         <div style="padding:14px; background:#2a79ff11; border-radius:10px; border:1px solid #2a79ff33">
           <div style="font-size:13px; font-weight:600; margin-bottom:8px">Примеры расчета:</div>
           <div style="font-size:12px; color:var(--muted); line-height:1.8; font-family:monospace">
-            <span style="color:var(--warn)">Малые проекты (коэфф. 0.15):</span><br/>
-            • 1 час    → 0.15 балла<br/>
-            • 10 часов  → 0.47 балла<br/>
-            • 25 часов  → 0.75 балла<br/>
-            • 40 часов  → 0.95 балла<br/>
-            <br/>
-            <span style="color:var(--ok)">Средние и крупные (коэфф. 0.3):</span><br/>
-            • 50 часов  → 2.12 балла<br/>
-            • 100 часов → 3.0 балла<br/>
-            • 200 часов → 4.24 балла<br/>
-            • 500 часов → 6.71 балла<br/>
-            • 1000 часов → 9.49 балла<br/>
+            <span style="color:var(--warn)">Малые проекты:</span><br />
+            • 1 час (k=0.05) → 0.05 балла<br />
+            • 10 часов (k=0.1) → 0.32 балла<br />
+            • 25 часов (k=0.1) → 0.50 балла<br />
+            • 40 часов (k=0.15) → 0.95 балла<br />
+            <br />
+            <span style="color:var(--ok)">Средние и крупные (коэфф. 0.3):</span><br />
+            • 50 часов → 2.12 балла<br />
+            • 100 часов → 3.0 балла<br />
+            • 200 часов → 4.24 балла<br />
+            • 500 часов → 6.71 балла<br />
+            • 1000 часов → 9.49 балла<br />
           </div>
         </div>
       </div>
     </div>
   </div>
-<script>
-  const $ = (id) => document.getElementById(id);
+  <script>
+    const $ = (id) => document.getElementById(id);
 
-  function toNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
-  function round(n, p=2){ return Number.isFinite(n) ? +(Math.round((n + Number.EPSILON) * Math.pow(10,p)) / Math.pow(10,p)) : 0; }
-  function kByAccuracy(a){
-    if (a >= 0.95) return 0.08;
-    if (a >= 0.90) return 0.05;
-    if (a >= 0.80) return 0.03;
-    if (a >= 0.70) return 0.01;
-    return 0.0;
-  }
-  function accClass(a){
-    if (a >= 0.90) return "ok";
-    if (a >= 0.70) return "warn";
-    return "bad";
-  }
+    function toNum(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
+    function round(n, p = 2) { return Number.isFinite(n) ? +(Math.round((n + Number.EPSILON) * Math.pow(10, p)) / Math.pow(10, p)) : 0; }
+    function kByAccuracy(a) {
+      if (a >= 0.95) return 0.08;
+      if (a >= 0.90) return 0.05;
+      if (a >= 0.80) return 0.03;
+      if (a >= 0.70) return 0.01;
+      return 0.0;
+    }
+    function accClass(a) {
+      if (a >= 0.90) return "ok";
+      if (a >= 0.70) return "warn";
+      return "bad";
+    }
 
-  // --- helpers to render blanks
-  function setText(id, val){ const el = document.getElementById(id); if (el) el.textContent = val; }
-  function clearOutputs(){
-    ["v-save","v-base","v-bonus","v-total","v-acc","v-k2",
-     "v-save-adv","v-base-adv","v-acc-adv","v-vol-adv","v-k-adv","v-k-badge","v-bonus-raw-adv","v-bonus-adv","v-total-adv"
-    ].forEach(id => { const el = document.getElementById(id); if (el){ el.textContent = "—"; el.className = el.className.replace(/\b(ok|warn|bad)\b/g,"").trim(); }});
-    const cap = document.getElementById("cap-badge"); if (cap) cap.style.display = "none";
-  }
+    // --- helpers to render blanks
+    function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+    function clearOutputs() {
+      ["v-save", "v-base", "v-bonus", "v-total", "v-acc", "v-k2",
+        "v-save-adv", "v-base-adv", "v-acc-adv", "v-vol-adv", "v-k-adv", "v-k-badge", "v-bonus-raw-adv", "v-bonus-adv", "v-total-adv"
+      ].forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = "—"; el.className = el.className.replace(/\b(ok|warn|bad)\b/g, "").trim(); } });
+      const cap = document.getElementById("cap-badge"); if (cap) cap.style.display = "none";
+    }
 
-  // ---- Read query params (empty means empty inputs)
-  function readQueryParams() {
-    const q = new URLSearchParams(window.location.search);
-    const getOr = (a,b) => q.has(a) ? q.get(a) : (q.has(b) ? q.get(b) : null);
+    // ---- Read query params (empty means empty inputs)
+    function readQueryParams() {
+      const q = new URLSearchParams(window.location.search);
+      const getOr = (a, b) => q.has(a) ? q.get(a) : (q.has(b) ? q.get(b) : null);
 
-    const t0  = getOr("t0","t1");
-    const est = getOr("est","t2");
-    const act = getOr("act","t3");
+      const t0 = getOr("t0", "t1");
+      const est = getOr("est", "t2");
+      const act = getOr("act", "t3");
 
-    if (t0  !== null)  document.getElementById("t0").value  = t0;
-    if (est !== null)  document.getElementById("est").value = est;
-    if (act !== null)  document.getElementById("act").value = act;
+      if (t0 !== null) document.getElementById("t0").value = t0;
+      if (est !== null) document.getElementById("est").value = est;
+      if (act !== null) document.getElementById("act").value = act;
 
-    const show = q.get("show");
-    if (show === "1" || show === "true") {
+      const show = q.get("show");
+      if (show === "1" || show === "true") {
         const cb = document.getElementById("toggle-advanced");
         const adv = document.getElementById("advanced");
         if (cb) cb.checked = true;
         if (adv) adv.style.display = "block";
-    }
-  }
-
-  // ---- Write query params (only non-empty values)
-  function writeQueryParams() {
-    const q = new URLSearchParams();
-
-    const t0  = document.getElementById("t0").value?.trim()  || "";
-    const est = document.getElementById("est").value?.trim() || "";
-    const act = document.getElementById("act").value?.trim() || "";
-
-    if (t0)  q.set("t0",  t0);
-    if (est) q.set("est", est);
-    if (act) q.set("act", act);
-
-    const advOn = document.getElementById("toggle-advanced")?.checked;
-    if (advOn) q.set("show","1");
-
-    const query = q.toString();
-    const hash  = window.location.hash || "";
-    const newUrl = query ? `${location.pathname}?${query}${hash}`
-                        : `${location.pathname}${hash}`;
-    history.replaceState(null, "", newUrl);
-  }
-
-  function canCalc(){
-    // все три поля должны быть непустыми
-    return $("t0").value !== "" && $("est").value !== "" && $("act").value !== "";
-  }
-
-  function recalc(){
-    // URL держим в синхроне всегда
-    writeQueryParams();
-
-    if (!canCalc()){
-      clearOutputs();
-      return;
-    }
-
-    const t0 = Math.max(0, toNum($("t0").value));
-    const est = Math.max(0, toNum($("est").value));
-    const actRaw = Number($("act").value);
-    if (!Number.isFinite(actRaw) || actRaw <= 0){
-      clearOutputs(); // защита от деления на 0 и нечисел
-      return;
-    }
-    const act = actRaw;
-
-    const save = Math.max(0, t0 - act);
-    const base = 0.1 * save;
-
-    const acc = Math.max(0, 1 - Math.abs(est - act) / act);
-    const V = Math.min(est, act);
-    const k = kByAccuracy(acc);
-    const bonusRaw = k * V;
-    const bonus = Math.min(bonusRaw, base);
-    const total = base + bonus;
-
-    // Лёгкий UI
-    setText("v-save",  round(save,2) + " ч");
-
-    const accPctText = (round(acc,4)*100).toFixed(2) + " %";
-    const aClass = accClass(acc);
-    const accEl = $("v-acc"); accEl.textContent = accPctText; accEl.className = "val " + aClass;
-
-    setText("v-k2",    k.toFixed(2));
-    setText("v-base",  round(base,2).toFixed(2));
-    setText("v-bonus", round(bonus,2).toFixed(2));
-    setText("v-total", round(total,2).toFixed(2));
-
-    // Расширенный (если есть)
-    setText("v-save-adv",  round(save,2) + " ч");
-    setText("v-base-adv",  round(base,2).toFixed(2));
-    const accAdv = $("v-acc-adv"); if (accAdv){ accAdv.textContent = accPctText; accAdv.className = "val " + aClass; }
-    setText("v-vol-adv",   round(V,2) + " ч");
-    setText("v-k-adv",     k.toFixed(2));
-    const kBadge = $("v-k-badge"); if (kBadge) kBadge.textContent = "k = " + k.toFixed(2);
-    setText("v-bonus-raw-adv", round(bonusRaw,2).toFixed(2));
-    setText("v-bonus-adv",     round(bonus,2).toFixed(2));
-    setText("v-total-adv",     round(total,2).toFixed(2));
-
-    const cap = $("cap-badge");
-    if (cap) cap.style.display = (bonus > 0 && Math.abs(bonus - base) < 1e-9) ? "inline-block" : "none";
-  }
-
-  // Переключатель формул
-  const toggle = document.getElementById("toggle-advanced");
-  if (toggle) {
-    toggle.addEventListener("change", (e)=>{
-      const adv = document.getElementById("advanced");
-      if (adv) adv.style.display = e.target.checked ? "block" : "none";
-      writeQueryParams(); // обновим ?show=1|— в URL
-    });
-  }
-
-  // Пресеты/копирование (если есть)
-  function bindButtons(){
-    const p1 = document.getElementById("preset1");
-    const p2 = document.getElementById("preset2");
-    const p3 = document.getElementById("preset3");
-    const reset = document.getElementById("reset");
-    const copy = document.getElementById("copy");
-
-    if (p1) p1.addEventListener("click", ()=>{ $("t0").value=40; $("est").value=22; $("act").value=20; recalc(); });
-    if (p2) p2.addEventListener("click", ()=>{ $("t0").value=24; $("est").value=12; $("act").value=18; recalc(); });
-    if (p3) p3.addEventListener("click", ()=>{ $("t0").value=10; $("est").value=6; $("act").value=6; recalc(); });
-    if (reset) reset.addEventListener("click", ()=>{ $("t0").value=""; $("est").value=""; $("act").value=""; recalc(); });
-    if (copy)  copy.addEventListener("click", async ()=>{
-      const text = [
-        `Link: ${location.href}`,
-        `T0: ${$("t0").value||""}`, `Est: ${$("est").value||""}`, `Act: ${$("act").value||""}`,
-        `Δsave: ${document.getElementById("v-save").textContent}`,
-        `Base: ${document.getElementById("v-base").textContent}`,
-        `Accuracy: ${document.getElementById("v-acc").textContent}`,
-        `k: ${document.getElementById("v-k2").textContent}`,
-        `AccuracyBonus: ${document.getElementById("v-bonus").textContent}`,
-        `Total: ${document.getElementById("v-total").textContent}`
-      ].join("\n");
-      try{ await navigator.clipboard.writeText(text); alert("Скопировано ✓"); }
-      catch(e){ alert("Не удалось скопировать: " + e); }
-    });
-  }
-
-  // Инициализация
-  readQueryParams();
-  bindButtons();
-
-  // Навешиваем обработчики на инпуты
-  ["t0","est","act"].forEach(id=>{
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener("input", recalc);
-      el.addEventListener("change", recalc);
-    }
-  });
-
-  // Первый пересчёт (ничего не запишет в URL, если поля пустые)
-  recalc();
-
-  // ========================================
-  // ФУНКЦИОНАЛ ДЛЯ ПРОЕКТНЫХ МЕНЕДЖЕРОВ
-  // ========================================
-
-  let pmProjects = [];
-
-  // Формула расчета баллов для проекта - динамическая с пониженными баллами для малых проектов
-  function calculateProjectPoints(spent, billed) {
-    // Проверяем достижение KPI 95%
-    const kpiPercent = (billed / spent) * 100;
-    if (kpiPercent < 95) {
-      return 0; // KPI не достигнут
-    }
-    
-    // Динамическая формула с разными коэффициентами:
-    // Для малых проектов (< 50ч): используем меньший коэффициент
-    // Для больших проектов (>= 50ч): используем стандартный коэффициент
-    let points;
-    if (spent < 50) {
-      // Малые проекты: 0.15 * sqrt(часы)
-      points = 0.15 * Math.sqrt(spent);
-    } else {
-      // Средние и крупные проекты: 0.3 * sqrt(часы)
-      points = 0.3 * Math.sqrt(spent);
-    }
-    
-    return points;
-  }
-
-  // Получить цвет для проекта в зависимости от KPI
-  function getProjectColor(kpiPercent) {
-    if (kpiPercent >= 95) return "ok";
-    if (kpiPercent >= 90) return "warn";
-    return "bad";
-  }
-
-  // Получить размер проекта
-  function getProjectSize(hours) {
-    if (hours >= 500) return { badge: "background:#7bd88f22; border-color:#7bd88f66; color:#7bd88f", text: "Огромный" };
-    if (hours >= 200) return { badge: "background:#7bd88f22; border-color:#7bd88f66; color:#7bd88f", text: "Крупный" };
-    if (hours >= 100) return { badge: "background:#7bd88f22; border-color:#7bd88f66; color:#7bd88f", text: "Большой" };
-    if (hours >= 50) return { badge: "background:#facc1522; border-color:#facc1566; color:#facc15", text: "Средний" };
-    if (hours >= 20) return { badge: "background:#facc1522; border-color:#facc1566; color:#facc15", text: "Малый" };
-    return { badge: "background:var(--chip); border-color:var(--border); color:var(--muted)", text: "Мини" };
-  }
-
-  // Отрисовка списка проектов
-  function renderPMProjects() {
-    const list = document.getElementById("pm-projects-list");
-    if (!list) return;
-
-    if (pmProjects.length === 0) {
-      list.innerHTML = '<div class="desc" style="text-align:center; padding:20px; color:var(--muted)">Проекты не добавлены</div>';
-      updatePMStats();
-      return;
-    }
-
-    list.innerHTML = pmProjects.map((project, idx) => {
-      // Проверка валидности данных проекта
-      if (!project || project.spent === undefined || project.billed === undefined) {
-        return ''; // Пропускаем невалидный проект
       }
-      
-      const kpiPercent = (project.billed / project.spent) * 100;
-      const points = calculateProjectPoints(project.spent, project.billed);
-      const colorClass = getProjectColor(kpiPercent);
-      const size = getProjectSize(project.spent);
-      
-      const kpiAchieved = kpiPercent >= 95;
-      const kpiIcon = kpiAchieved ? '✅' : '❌';
-      
-      const warningBadge = !kpiAchieved ? `
+    }
+
+    // ---- Write query params (only non-empty values)
+    function writeQueryParams() {
+      const q = new URLSearchParams();
+
+      const t0 = document.getElementById("t0").value?.trim() || "";
+      const est = document.getElementById("est").value?.trim() || "";
+      const act = document.getElementById("act").value?.trim() || "";
+
+      if (t0) q.set("t0", t0);
+      if (est) q.set("est", est);
+      if (act) q.set("act", act);
+
+      const advOn = document.getElementById("toggle-advanced")?.checked;
+      if (advOn) q.set("show", "1");
+
+      const query = q.toString();
+      const hash = window.location.hash || "";
+      const newUrl = query ? `${location.pathname}?${query}${hash}`
+        : `${location.pathname}${hash}`;
+      history.replaceState(null, "", newUrl);
+    }
+
+    function canCalc() {
+      // все три поля должны быть непустыми
+      return $("t0").value !== "" && $("est").value !== "" && $("act").value !== "";
+    }
+
+    function recalc() {
+      // URL держим в синхроне всегда
+      writeQueryParams();
+
+      if (!canCalc()) {
+        clearOutputs();
+        return;
+      }
+
+      const t0 = Math.max(0, toNum($("t0").value));
+      const est = Math.max(0, toNum($("est").value));
+      const actRaw = Number($("act").value);
+      if (!Number.isFinite(actRaw) || actRaw <= 0) {
+        clearOutputs(); // защита от деления на 0 и нечисел
+        return;
+      }
+      const act = actRaw;
+
+      const save = Math.max(0, t0 - act);
+      const base = 0.1 * save;
+
+      const acc = Math.max(0, 1 - Math.abs(est - act) / act);
+      const V = Math.min(est, act);
+      const k = kByAccuracy(acc);
+      const bonusRaw = k * V;
+      const bonus = Math.min(bonusRaw, base);
+      const total = base + bonus;
+
+      // Лёгкий UI
+      setText("v-save", round(save, 2) + " ч");
+
+      const accPctText = (round(acc, 4) * 100).toFixed(2) + " %";
+      const aClass = accClass(acc);
+      const accEl = $("v-acc"); accEl.textContent = accPctText; accEl.className = "val " + aClass;
+
+      setText("v-k2", k.toFixed(2));
+      setText("v-base", round(base, 2).toFixed(2));
+      setText("v-bonus", round(bonus, 2).toFixed(2));
+      setText("v-total", round(total, 2).toFixed(2));
+
+      // Расширенный (если есть)
+      setText("v-save-adv", round(save, 2) + " ч");
+      setText("v-base-adv", round(base, 2).toFixed(2));
+      const accAdv = $("v-acc-adv"); if (accAdv) { accAdv.textContent = accPctText; accAdv.className = "val " + aClass; }
+      setText("v-vol-adv", round(V, 2) + " ч");
+      setText("v-k-adv", k.toFixed(2));
+      const kBadge = $("v-k-badge"); if (kBadge) kBadge.textContent = "k = " + k.toFixed(2);
+      setText("v-bonus-raw-adv", round(bonusRaw, 2).toFixed(2));
+      setText("v-bonus-adv", round(bonus, 2).toFixed(2));
+      setText("v-total-adv", round(total, 2).toFixed(2));
+
+      const cap = $("cap-badge");
+      if (cap) cap.style.display = (bonus > 0 && Math.abs(bonus - base) < 1e-9) ? "inline-block" : "none";
+    }
+
+    // Переключатель формул
+    const toggle = document.getElementById("toggle-advanced");
+    if (toggle) {
+      toggle.addEventListener("change", (e) => {
+        const adv = document.getElementById("advanced");
+        if (adv) adv.style.display = e.target.checked ? "block" : "none";
+        writeQueryParams(); // обновим ?show=1|— в URL
+      });
+    }
+
+    // Пресеты/копирование (если есть)
+    function bindButtons() {
+      const p1 = document.getElementById("preset1");
+      const p2 = document.getElementById("preset2");
+      const p3 = document.getElementById("preset3");
+      const reset = document.getElementById("reset");
+      const copy = document.getElementById("copy");
+
+      if (p1) p1.addEventListener("click", () => { $("t0").value = 40; $("est").value = 22; $("act").value = 20; recalc(); });
+      if (p2) p2.addEventListener("click", () => { $("t0").value = 24; $("est").value = 12; $("act").value = 18; recalc(); });
+      if (p3) p3.addEventListener("click", () => { $("t0").value = 10; $("est").value = 6; $("act").value = 6; recalc(); });
+      if (reset) reset.addEventListener("click", () => { $("t0").value = ""; $("est").value = ""; $("act").value = ""; recalc(); });
+      if (copy) copy.addEventListener("click", async () => {
+        const text = [
+          `Link: ${location.href}`,
+          `T0: ${$("t0").value || ""}`, `Est: ${$("est").value || ""}`, `Act: ${$("act").value || ""}`,
+          `Δsave: ${document.getElementById("v-save").textContent}`,
+          `Base: ${document.getElementById("v-base").textContent}`,
+          `Accuracy: ${document.getElementById("v-acc").textContent}`,
+          `k: ${document.getElementById("v-k2").textContent}`,
+          `AccuracyBonus: ${document.getElementById("v-bonus").textContent}`,
+          `Total: ${document.getElementById("v-total").textContent}`
+        ].join("\n");
+        try { await navigator.clipboard.writeText(text); alert("Скопировано ✓"); }
+        catch (e) { alert("Не удалось скопировать: " + e); }
+      });
+    }
+
+    // Инициализация
+    readQueryParams();
+    bindButtons();
+
+    // Навешиваем обработчики на инпуты
+    ["t0", "est", "act"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", recalc);
+        el.addEventListener("change", recalc);
+      }
+    });
+
+    // Первый пересчёт (ничего не запишет в URL, если поля пустые)
+    recalc();
+
+    // ========================================
+    // ФУНКЦИОНАЛ ДЛЯ ПРОЕКТНЫХ МЕНЕДЖЕРОВ
+    // ========================================
+
+    let pmProjects = [];
+
+    // Формула расчета баллов для проекта - динамическая с пониженными баллами для малых проектов
+    function calculateProjectPoints(spent, billed) {
+      // Проверяем достижение KPI 95%
+      const kpiPercent = (billed / spent) * 100;
+      if (kpiPercent < 95) {
+        return 0; // KPI не достигнут
+      }
+
+      // Динамическая формула с разными коэффициентами:
+      // 0-10 часов: 0.05 (пониженный)
+      // 10-30 часов: 0.1
+      // 30-50 часов: 0.15
+      // 50+ часов: 0.3 (стандартный)
+      let k = 0.3;
+      if (spent < 10) k = 0.05;
+      else if (spent < 30) k = 0.1;
+      else if (spent < 50) k = 0.15;
+
+      const points = k * Math.sqrt(spent);
+      return points;
+    }
+
+    // Получить цвет для проекта в зависимости от KPI
+    function getProjectColor(kpiPercent) {
+      if (kpiPercent >= 95) return "ok";
+      if (kpiPercent >= 90) return "warn";
+      return "bad";
+    }
+
+    // Получить размер проекта
+    function getProjectSize(hours) {
+      if (hours >= 500) return { badge: "background:#7bd88f22; border-color:#7bd88f66; color:#7bd88f", text: "Огромный" };
+      if (hours >= 200) return { badge: "background:#7bd88f22; border-color:#7bd88f66; color:#7bd88f", text: "Крупный" };
+      if (hours >= 100) return { badge: "background:#7bd88f22; border-color:#7bd88f66; color:#7bd88f", text: "Большой" };
+      if (hours >= 50) return { badge: "background:#facc1522; border-color:#facc1566; color:#facc15", text: "Средний" };
+      if (hours >= 20) return { badge: "background:#facc1522; border-color:#facc1566; color:#facc15", text: "Малый" };
+      return { badge: "background:var(--chip); border-color:var(--border); color:var(--muted)", text: "Мини" };
+    }
+
+    // Отрисовка списка проектов
+    function renderPMProjects() {
+      const list = document.getElementById("pm-projects-list");
+      if (!list) return;
+
+      if (pmProjects.length === 0) {
+        list.innerHTML = '<div class="desc" style="text-align:center; padding:20px; color:var(--muted)">Проекты не добавлены</div>';
+        updatePMStats();
+        return;
+      }
+
+      list.innerHTML = pmProjects.map((project, idx) => {
+        // Проверка валидности данных проекта
+        if (!project || project.spent === undefined || project.billed === undefined) {
+          return ''; // Пропускаем невалидный проект
+        }
+
+        const kpiPercent = (project.billed / project.spent) * 100;
+        const points = calculateProjectPoints(project.spent, project.billed);
+        const colorClass = getProjectColor(kpiPercent);
+        const size = getProjectSize(project.spent);
+
+        const kpiAchieved = kpiPercent >= 95;
+        const kpiIcon = kpiAchieved ? '✅' : '❌';
+
+        const warningBadge = !kpiAchieved ? `
         <div style="margin-top:8px; padding:8px 10px; background:#ff6b6b11; border:1px solid #ff6b6b33; border-radius:8px; font-size:12px; color:#ff6b6b">
           ⚠️ KPI не достигнут (требуется ≥95%). Баллы не начисляются.
         </div>
       ` : '';
-      
-      return `
+
+        const managerBadge = project.manager ? `<span class="badge" style="background:#2a79ff22; border-color:#2a79ff66; color:#5aa6ff">👤 ${project.manager}</span>` : '';
+
+        return `
         <div style="background:var(--hl); border:1px solid ${kpiAchieved ? 'var(--border)' : '#ff6b6b33'}; border-radius:10px; padding:14px; margin-bottom:8px">
           <div style="display:flex; justify-content:space-between; align-items:start; gap:12px">
             <div style="flex:1">
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap">
                 <div style="font-size:14px; font-weight:600">${project.name}</div>
+                ${managerBadge}
                 <span class="badge" style="${size.badge}">${size.text}</span>
               </div>
               <div style="font-size:12px; color:var(--muted); margin-bottom:4px">
@@ -559,368 +841,458 @@
           </div>
         </div>
       `;
-    }).join('');
+      }).join('');
 
-    updatePMStats();
-    savePMToURL();
-  }
-
-  // Обновление статистики
-  function updatePMStats() {
-    // Фильтруем валидные проекты
-    const validProjects = pmProjects.filter(p => p && p.spent !== undefined && p.billed !== undefined);
-    
-    const totalProjects = validProjects.length;
-    const totalSpent = validProjects.reduce((sum, p) => sum + (p.spent || 0), 0);
-    const totalPoints = validProjects.reduce((sum, p) => sum + calculateProjectPoints(p.spent, p.billed), 0);
-    const avgHours = totalProjects > 0 ? totalSpent / totalProjects : 0;
-
-    setText("pm-total-projects", totalProjects);
-    setText("pm-total-hours", totalSpent.toFixed(1) + " ч");
-    setText("pm-avg-hours", totalProjects > 0 ? avgHours.toFixed(1) + " ч" : "—");
-    setText("pm-total-points", totalPoints.toFixed(2));
-
-    // Если были отфильтрованы невалидные проекты, обновляем массив
-    if (validProjects.length !== pmProjects.length) {
-      pmProjects = validProjects;
+      updatePMStats();
+      renderManagersStats();
+      savePMToURL();
     }
 
-    // Сохраняем в localStorage
-    savePMProjects();
-  }
+    // Отображение статистики по менеджерам
+    function renderManagersStats() {
+      const statsBlock = document.getElementById("pm-managers-stats");
+      const managersList = document.getElementById("pm-managers-list");
 
-  // Добавление проекта
-  function addPMProject() {
-    const nameInput = document.getElementById("pm-project-name");
-    const spentInput = document.getElementById("pm-project-spent");
-    const billedInput = document.getElementById("pm-project-billed");
-    
-    const name = nameInput ? nameInput.value.trim() : "";
-    const spent = spentInput ? parseFloat(spentInput.value) : NaN;
-    const billed = billedInput ? parseFloat(billedInput.value) : NaN;
+      if (!statsBlock || !managersList) return;
 
-    if (!name) {
-      alert("Введите название проекта");
-      return;
+      // Группируем проекты по менеджерам
+      const managerGroups = {};
+      pmProjects.forEach(project => {
+        const manager = project.manager || 'Без ПМ';
+        if (!managerGroups[manager]) {
+          managerGroups[manager] = {
+            projects: [],
+            totalPoints: 0,
+            totalHours: 0,
+            achievedKPI: 0
+          };
+        }
+
+        const points = calculateProjectPoints(project.spent, project.billed);
+        const kpiPercent = (project.billed / project.spent) * 100;
+
+        managerGroups[manager].projects.push(project);
+        managerGroups[manager].totalPoints += points;
+        managerGroups[manager].totalHours += project.spent;
+        if (kpiPercent >= 95) {
+          managerGroups[manager].achievedKPI += 1;
+        }
+      });
+
+      // Если есть менеджеры, показываем блок
+      const hasManagers = Object.keys(managerGroups).length > 0;
+      statsBlock.style.display = hasManagers ? 'block' : 'none';
+
+      if (!hasManagers) return;
+
+      // Сортируем по баллам (больше баллов - выше)
+      const sortedManagers = Object.entries(managerGroups).sort((a, b) => b[1].totalPoints - a[1].totalPoints);
+
+      // Рендерим список менеджеров
+      managersList.innerHTML = sortedManagers.map(([manager, data]) => {
+        const avgPointsPerProject = data.projects.length > 0 ? data.totalPoints / data.projects.length : 0;
+
+        return `
+        <div style="background:var(--hl); border:1px solid var(--border); border-radius:10px; padding:14px">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px">
+            <div style="display:flex; align-items:center; gap:8px">
+              <span style="font-size:18px">👤</span>
+              <span style="font-size:16px; font-weight:600">${manager}</span>
+            </div>
+            <div style="font-size:20px; font-weight:700; color:var(--ok)">
+              ${data.totalPoints.toFixed(2)} ${data.totalPoints === 1 ? 'балл' : data.totalPoints < 5 ? 'балла' : 'баллов'}
+            </div>
+          </div>
+          <div style="display:flex; gap:16px; font-size:12px; color:var(--muted); flex-wrap:wrap">
+            <span>📊 Проектов: ${data.projects.length}</span>
+            <span>⏱️ Часов: ${data.totalHours.toFixed(1)}</span>
+            <span>✅ KPI достигнут: ${data.achievedKPI} из ${data.projects.length}</span>
+            <span>📈 Средний балл: ${avgPointsPerProject.toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+      }).join('');
     }
 
-    if (!Number.isFinite(spent) || spent <= 0) {
-      alert("Введите корректное количество потраченных часов");
-      return;
+    // Обновление статистики
+    function updatePMStats() {
+      // Фильтруем валидные проекты
+      const validProjects = pmProjects.filter(p => p && p.spent !== undefined && p.billed !== undefined);
+
+      const totalProjects = validProjects.length;
+      const totalSpent = validProjects.reduce((sum, p) => sum + (p.spent || 0), 0);
+      const totalPoints = validProjects.reduce((sum, p) => sum + calculateProjectPoints(p.spent, p.billed), 0);
+      const avgHours = totalProjects > 0 ? totalSpent / totalProjects : 0;
+
+      setText("pm-total-projects", totalProjects);
+      setText("pm-total-hours", totalSpent.toFixed(1) + " ч");
+      setText("pm-avg-hours", totalProjects > 0 ? avgHours.toFixed(1) + " ч" : "—");
+      setText("pm-total-points", totalPoints.toFixed(2));
+
+      // Если были отфильтрованы невалидные проекты, обновляем массив
+      if (validProjects.length !== pmProjects.length) {
+        pmProjects = validProjects;
+      }
+
+      // Сохраняем в localStorage
+      savePMProjects();
     }
 
-    if (!Number.isFinite(billed) || billed < 0) {
-      alert("Введите корректное количество выставленных часов");
-      return;
-    }
+    // Добавление проекта
+    function addPMProject() {
+      const managerInput = document.getElementById("pm-manager-name");
+      const nameInput = document.getElementById("pm-project-name");
+      const spentInput = document.getElementById("pm-project-spent");
+      const billedInput = document.getElementById("pm-project-billed");
 
-    if (billed > spent) {
-      if (!confirm(`Выставлено (${billed}ч) больше чем потрачено (${spent}ч). Продолжить?`)) {
+      const manager = managerInput ? managerInput.value.trim() : "";
+      const name = nameInput ? nameInput.value.trim() : "";
+      const spent = spentInput ? parseFloat(spentInput.value) : NaN;
+      const billed = billedInput ? parseFloat(billedInput.value) : NaN;
+
+      if (!manager) {
+        alert("Введите фамилию ПМ");
         return;
       }
-    }
 
-    pmProjects.push({ name, spent, billed });
-    
-    // Очищаем поля
-    if (nameInput) nameInput.value = "";
-    if (spentInput) spentInput.value = "";
-    if (billedInput) billedInput.value = "";
-    
-    renderPMProjects();
-  }
-
-  // Удаление проекта
-  window.removePMProject = function(idx) {
-    pmProjects.splice(idx, 1);
-    renderPMProjects();
-  };
-
-  // Сохранение в localStorage
-  function savePMProjects() {
-    try {
-      localStorage.setItem('pm-projects', JSON.stringify(pmProjects));
-    } catch (e) {
-      console.error("Не удалось сохранить проекты:", e);
-    }
-  }
-
-  // Загрузка из localStorage с миграцией старых данных
-  function loadPMProjects() {
-    try {
-      // Проверяем, не загружены ли уже данные из URL
-      if (pmProjects.length > 0) {
+      if (!name) {
+        alert("Введите название проекта");
         return;
       }
-      
-      const saved = localStorage.getItem('pm-projects');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        
-        // Миграция: если в проектах есть старое поле 'hours', конвертируем в новую структуру
-        pmProjects = parsed.map(project => {
-          if (project.hours !== undefined && project.spent === undefined) {
-            // Старая структура: конвертируем
-            return {
-              name: project.name,
-              spent: project.hours,
-              billed: project.hours * 0.95 // Предполагаем 95% KPI
-            };
-          }
-          // Проверяем, что есть все необходимые поля
-          if (project.spent !== undefined && project.billed !== undefined) {
-            return project;
-          }
-          return null;
-        }).filter(p => p !== null);
-        
-        renderPMProjects();
-      }
-    } catch (e) {
-      console.error("Не удалось загрузить проекты:", e);
-      // Очищаем поврежденные данные
-      localStorage.removeItem('pm-projects');
-    }
-  }
 
-  // Сохранение в URL (для шаринга) - используем hash вместо query параметров
-  function savePMToURL() {
-    try {
-      // Сохраняем проекты в hash (работает с file://)
-      if (pmProjects.length > 0) {
-        const jsonStr = JSON.stringify(pmProjects);
-        const encoded = encodeURIComponent(jsonStr);
-        const newHash = `#pm=${encoded}`;
-        
-        // Для file:// протокола используем hash
-        const search = window.location.search || "";
-        const newUrl = `${location.pathname}${search}${newHash}`;
-        
-        history.replaceState(null, "", newUrl);
+      if (!Number.isFinite(spent) || spent <= 0) {
+        alert("Введите корректное количество потраченных часов");
+        return;
       }
-    } catch (e) {
-      console.error("Не удалось сохранить в URL:", e);
-    }
-  }
 
-  // Загрузка из URL с валидацией - поддержка hash и query параметров
-  function loadPMFromURL() {
-    try {
-      let pmData = null;
-      
-      // Сначала пробуем загрузить из hash (для file://)
-      if (window.location.hash) {
-        const hashMatch = window.location.hash.match(/[#&]pm=([^&]*)/);
-        if (hashMatch && hashMatch[1]) {
-          pmData = decodeURIComponent(hashMatch[1]);
+      if (!Number.isFinite(billed) || billed < 0) {
+        alert("Введите корректное количество выставленных часов");
+        return;
+      }
+
+      if (billed > spent) {
+        if (!confirm(`Выставлено (${billed}ч) больше чем потрачено (${spent}ч). Продолжить?`)) {
+          return;
         }
       }
-      
-      // Если не нашли в hash, пробуем query параметры (для http://)
-      if (!pmData && window.location.search) {
-        const q = new URLSearchParams(window.location.search);
-        pmData = q.get('pm');
+
+      pmProjects.push({ manager, name, spent, billed });
+
+      // Очищаем поля
+      if (managerInput) managerInput.value = "";
+      if (nameInput) nameInput.value = "";
+      if (spentInput) spentInput.value = "";
+      if (billedInput) billedInput.value = "";
+
+      renderPMProjects();
+    }
+
+    // Удаление проекта
+    window.removePMProject = function (idx) {
+      pmProjects.splice(idx, 1);
+      renderPMProjects();
+    };
+
+    // Сохранение в localStorage
+    function savePMProjects() {
+      try {
+        localStorage.setItem('pm-projects', JSON.stringify(pmProjects));
+      } catch (e) {
+        console.error("Не удалось сохранить проекты:", e);
       }
-      
-      if (pmData) {
-        const projects = JSON.parse(pmData);
-        
-        if (Array.isArray(projects) && projects.length > 0) {
-          // Валидация и миграция данных из URL
-          pmProjects = projects.map(project => {
+    }
+
+    // Загрузка из localStorage с миграцией старых данных
+    function loadPMProjects() {
+      try {
+        // Проверяем, не загружены ли уже данные из URL
+        if (pmProjects.length > 0) {
+          return;
+        }
+
+        const saved = localStorage.getItem('pm-projects');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+
+          // Миграция: если в проектах есть старое поле 'hours', конвертируем в новую структуру
+          pmProjects = parsed.map(project => {
             if (project.hours !== undefined && project.spent === undefined) {
-              // Старая структура
+              // Старая структура: конвертируем
               return {
+                manager: project.manager || '',
                 name: project.name,
                 spent: project.hours,
-                billed: project.hours * 0.95
+                billed: project.hours * 0.95 // Предполагаем 95% KPI
               };
             }
-            // Проверяем валидность
-            if (project.spent !== undefined && project.billed !== undefined && project.name) {
-              return project;
+            // Проверяем, что есть все необходимые поля
+            if (project.spent !== undefined && project.billed !== undefined) {
+              // Добавляем manager если его нет
+              return {
+                manager: project.manager || '',
+                name: project.name,
+                spent: project.spent,
+                billed: project.billed
+              };
             }
             return null;
           }).filter(p => p !== null);
-          
-          if (pmProjects.length > 0) {
-            renderPMProjects();
-            // Переключаемся на таб РМ если есть данные
-            switchTab("pm");
-            return true;
+
+          renderPMProjects();
+        }
+      } catch (e) {
+        console.error("Не удалось загрузить проекты:", e);
+        // Очищаем поврежденные данные
+        localStorage.removeItem('pm-projects');
+      }
+    }
+
+    // Сохранение в URL (для шаринга) - используем hash вместо query параметров
+    function savePMToURL() {
+      try {
+        // Сохраняем проекты в hash (работает с file://)
+        if (pmProjects.length > 0) {
+          const jsonStr = JSON.stringify(pmProjects);
+          const encoded = encodeURIComponent(jsonStr);
+          const newHash = `#pm=${encoded}`;
+
+          // Для file:// протокола используем hash
+          const search = window.location.search || "";
+          const newUrl = `${location.pathname}${search}${newHash}`;
+
+          history.replaceState(null, "", newUrl);
+        }
+      } catch (e) {
+        console.error("Не удалось сохранить в URL:", e);
+      }
+    }
+
+    // Загрузка из URL с валидацией - поддержка hash и query параметров
+    function loadPMFromURL() {
+      try {
+        let pmData = null;
+
+        // Сначала пробуем загрузить из hash (для file://)
+        if (window.location.hash) {
+          const hashMatch = window.location.hash.match(/[#&]pm=([^&]*)/);
+          if (hashMatch && hashMatch[1]) {
+            pmData = decodeURIComponent(hashMatch[1]);
           }
         }
-      }
-      return false;
-    } catch (e) {
-      console.error("Не удалось загрузить из URL:", e);
-      return false;
-    }
-  }
 
-  // Переключение между формами через табы
-  const tabDev = document.getElementById("tab-dev");
-  const tabPM = document.getElementById("tab-pm");
-  const devPanel = document.getElementById("dev-panel");
-  const pmPanel = document.getElementById("pm-panel");
+        // Если не нашли в hash, пробуем query параметры (для http://)
+        if (!pmData && window.location.search) {
+          const q = new URLSearchParams(window.location.search);
+          pmData = q.get('pm');
+        }
 
-  function switchTab(activeTab) {
-    if (activeTab === "dev") {
-      if (tabDev) tabDev.classList.add("active");
-      if (tabPM) tabPM.classList.remove("active");
-      if (devPanel) devPanel.style.display = "block";
-      if (pmPanel) pmPanel.style.display = "none";
-    } else if (activeTab === "pm") {
-      if (tabDev) tabDev.classList.remove("active");
-      if (tabPM) tabPM.classList.add("active");
-      if (devPanel) devPanel.style.display = "none";
-      if (pmPanel) pmPanel.style.display = "block";
-    }
-  }
+        if (pmData) {
+          const projects = JSON.parse(pmData);
 
-  if (tabDev) {
-    tabDev.addEventListener("click", () => switchTab("dev"));
-  }
-  if (tabPM) {
-    tabPM.addEventListener("click", () => switchTab("pm"));
-  }
+          if (Array.isArray(projects) && projects.length > 0) {
+            // Валидация и миграция данных из URL
+            pmProjects = projects.map(project => {
+              if (project.hours !== undefined && project.spent === undefined) {
+                // Старая структура
+                return {
+                  manager: project.manager || '',
+                  name: project.name,
+                  spent: project.hours,
+                  billed: project.hours * 0.95
+                };
+              }
+              // Проверяем валидность
+              if (project.spent !== undefined && project.billed !== undefined && project.name) {
+                return {
+                  manager: project.manager || '',
+                  name: project.name,
+                  spent: project.spent,
+                  billed: project.billed
+                };
+              }
+              return null;
+            }).filter(p => p !== null);
 
-  // Обновление видимости расширенной информации (работает для обеих форм)
-  // Уже есть обработчик для dev-panel выше, добавляем только для PM
-  if (toggle) {
-    // Расширяем существующий обработчик
-    const originalChange = toggle.onchange;
-    toggle.addEventListener("change", (e) => {
-      const pmAdv = document.getElementById("pm-advanced");
-      if (pmAdv) {
-        pmAdv.style.display = e.target.checked ? "block" : "none";
-      }
-    });
-  }
-
-  // Обработчик добавления проекта
-  const addProjectBtn = document.getElementById("pm-add-project");
-  if (addProjectBtn) {
-    addProjectBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // Предотвращаем отправку формы, если это случайно форма
-      addPMProject();
-    });
-  }
-
-  // Обработчик кнопки шаринга
-  const shareLinkBtn = document.getElementById("pm-share-link");
-  if (shareLinkBtn) {
-    shareLinkBtn.addEventListener("click", async () => {
-      if (pmProjects.length === 0) {
-        alert("Добавьте хотя бы один проект");
-        return;
-      }
-      
-      // Обновляем URL перед копированием
-      savePMToURL();
-      
-      // Небольшая задержка, чтобы убедиться что URL обновился
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const url = window.location.href;
-      
-      try {
-        await navigator.clipboard.writeText(url);
-        const btn = shareLinkBtn;
-        const originalText = btn.textContent;
-        btn.textContent = "✓ Ссылка скопирована!";
-        btn.style.background = "#7bd88f";
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.background = "";
-        }, 2000);
+            if (pmProjects.length > 0) {
+              renderPMProjects();
+              // Переключаемся на таб РМ если есть данные
+              switchTab("pm");
+              return true;
+            }
+          }
+        }
+        return false;
       } catch (e) {
-        console.error("Ошибка копирования:", e);
-        // Показываем ссылку в alert если не удалось скопировать
-        prompt("Скопируйте ссылку:", url);
+        console.error("Не удалось загрузить из URL:", e);
+        return false;
       }
-    });
-  }
+    }
 
+    // Переключение между формами через табы
+    const tabDev = document.getElementById("tab-dev");
+    const tabPM = document.getElementById("tab-pm");
+    const devPanel = document.getElementById("dev-panel");
+    const pmPanel = document.getElementById("pm-panel");
 
-  // Обработчик очистки всех проектов
-  const clearAllBtn = document.getElementById("pm-clear-all");
-  if (clearAllBtn) {
-    clearAllBtn.addEventListener("click", () => {
-      if (pmProjects.length === 0) return;
-      if (confirm(`Удалить все проекты (${pmProjects.length})? Это действие нельзя отменить.`)) {
-        pmProjects = [];
-        renderPMProjects();
+    function switchTab(activeTab) {
+      if (activeTab === "dev") {
+        if (tabDev) tabDev.classList.add("active");
+        if (tabPM) tabPM.classList.remove("active");
+        if (devPanel) devPanel.style.display = "block";
+        if (pmPanel) pmPanel.style.display = "none";
+      } else if (activeTab === "pm") {
+        if (tabDev) tabDev.classList.remove("active");
+        if (tabPM) tabPM.classList.add("active");
+        if (devPanel) devPanel.style.display = "none";
+        if (pmPanel) pmPanel.style.display = "block";
       }
-    });
-  }
+    }
 
-  // Enter для добавления проекта
-  const pmProjectName = document.getElementById("pm-project-name");
-  const pmProjectSpent = document.getElementById("pm-project-spent");
-  const pmProjectBilled = document.getElementById("pm-project-billed");
-  [pmProjectName, pmProjectSpent, pmProjectBilled].forEach(input => {
-    if (input) {
-      input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          addPMProject();
+    if (tabDev) {
+      tabDev.addEventListener("click", () => switchTab("dev"));
+    }
+    if (tabPM) {
+      tabPM.addEventListener("click", () => switchTab("pm"));
+    }
+
+    // Обновление видимости расширенной информации (работает для обеих форм)
+    // Уже есть обработчик для dev-panel выше, добавляем только для PM
+    if (toggle) {
+      // Расширяем существующий обработчик
+      const originalChange = toggle.onchange;
+      toggle.addEventListener("change", (e) => {
+        const pmAdv = document.getElementById("pm-advanced");
+        if (pmAdv) {
+          pmAdv.style.display = e.target.checked ? "block" : "none";
         }
       });
     }
-  });
 
-  // Примеры для тестирования
-  const pmExample1 = document.getElementById("pm-example-1");
-  const pmExample2 = document.getElementById("pm-example-2");
-  const pmExample3 = document.getElementById("pm-example-3");
+    // Обработчик добавления проекта
+    const addProjectBtn = document.getElementById("pm-add-project");
+    if (addProjectBtn) {
+      addProjectBtn.addEventListener("click", (e) => {
+        e.preventDefault(); // Предотвращаем отправку формы, если это случайно форма
+        addPMProject();
+      });
+    }
 
-  if (pmExample1) {
-    pmExample1.addEventListener("click", () => {
-      pmProjects = [
-        { name: "Корпоративный портал", spent: 1000, billed: 980 }
-      ];
-      renderPMProjects();
-      if (toggle && toggle.checked === false) {
-        toggle.click(); // Показываем формулы
+    // Обработчик кнопки шаринга
+    const shareLinkBtn = document.getElementById("pm-share-link");
+    if (shareLinkBtn) {
+      shareLinkBtn.addEventListener("click", async () => {
+        if (pmProjects.length === 0) {
+          alert("Добавьте хотя бы один проект");
+          return;
+        }
+
+        // Обновляем URL перед копированием
+        savePMToURL();
+
+        // Небольшая задержка, чтобы убедиться что URL обновился
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const url = window.location.href;
+
+        try {
+          await navigator.clipboard.writeText(url);
+          const btn = shareLinkBtn;
+          const originalText = btn.textContent;
+          btn.textContent = "✓ Ссылка скопирована!";
+          btn.style.background = "#7bd88f";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = "";
+          }, 2000);
+        } catch (e) {
+          console.error("Ошибка копирования:", e);
+          // Показываем ссылку в alert если не удалось скопировать
+          prompt("Скопируйте ссылку:", url);
+        }
+      });
+    }
+
+
+    // Обработчик очистки всех проектов
+    const clearAllBtn = document.getElementById("pm-clear-all");
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener("click", () => {
+        if (pmProjects.length === 0) return;
+        if (confirm(`Удалить все проекты (${pmProjects.length})? Это действие нельзя отменить.`)) {
+          pmProjects = [];
+          renderPMProjects();
+        }
+      });
+    }
+
+    // Enter для добавления проекта
+    const pmManagerName = document.getElementById("pm-manager-name");
+    const pmProjectName = document.getElementById("pm-project-name");
+    const pmProjectSpent = document.getElementById("pm-project-spent");
+    const pmProjectBilled = document.getElementById("pm-project-billed");
+    [pmManagerName, pmProjectName, pmProjectSpent, pmProjectBilled].forEach(input => {
+      if (input) {
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            addPMProject();
+          }
+        });
       }
     });
-  }
 
-  if (pmExample2) {
-    pmExample2.addEventListener("click", () => {
-      pmProjects = [
-        { name: "Мобильное приложение", spent: 150, billed: 145 },
-        { name: "CRM интеграция", spent: 80, billed: 78 },
-        { name: "Редизайн лендинга", spent: 45, billed: 44 },
-        { name: "API для партнеров", spent: 25, billed: 24 },
-        { name: "Баг-фиксы", spent: 5, billed: 5 }
-      ];
-      renderPMProjects();
-      if (toggle && toggle.checked === false) {
-        toggle.click(); // Показываем формулы
-      }
-    });
-  }
+    // Примеры для тестирования
+    const pmExample1 = document.getElementById("pm-example-1");
+    const pmExample2 = document.getElementById("pm-example-2");
+    const pmExample3 = document.getElementById("pm-example-3");
 
-  if (pmExample3) {
-    pmExample3.addEventListener("click", () => {
-      pmProjects = [
-        { name: "Проект A (KPI 98%)", spent: 100, billed: 98 },
-        { name: "Проект B (KPI 92% - нет баллов)", spent: 50, billed: 46 },
-        { name: "Проект C (KPI 96%)", spent: 30, billed: 29 }
-      ];
-      renderPMProjects();
-      if (toggle && toggle.checked === false) {
-        toggle.click(); // Показываем формулы
-      }
-    });
-  }
+    if (pmExample1) {
+      pmExample1.addEventListener("click", () => {
+        pmProjects = [
+          { manager: "Иванов", name: "Корпоративный портал", spent: 1000, billed: 980 }
+        ];
+        renderPMProjects();
+        if (toggle && toggle.checked === false) {
+          toggle.click(); // Показываем формулы
+        }
+      });
+    }
 
-  // Загружаем проекты: сначала из URL, потом из localStorage
-  const loadedFromURL = loadPMFromURL();
-  if (!loadedFromURL && pmProjects.length === 0) {
-    loadPMProjects();
-  }
-</script>
+    if (pmExample2) {
+      pmExample2.addEventListener("click", () => {
+        pmProjects = [
+          { manager: "Петров", name: "Мобильное приложение", spent: 150, billed: 145 },
+          { manager: "Петров", name: "CRM интеграция", spent: 80, billed: 78 },
+          { manager: "Сидоров", name: "Редизайн лендинга", spent: 45, billed: 44 },
+          { manager: "Сидоров", name: "API для партнеров", spent: 25, billed: 24 },
+          { manager: "Иванов", name: "Баг-фиксы", spent: 5, billed: 5 }
+        ];
+        renderPMProjects();
+        if (toggle && toggle.checked === false) {
+          toggle.click(); // Показываем формулы
+        }
+      });
+    }
+
+    if (pmExample3) {
+      pmExample3.addEventListener("click", () => {
+        pmProjects = [
+          { manager: "Козлов", name: "Проект A (KPI 98%)", spent: 100, billed: 98 },
+          { manager: "Козлов", name: "Проект B (KPI 92% - нет баллов)", spent: 50, billed: 46 },
+          { manager: "Смирнов", name: "Проект C (KPI 96%)", spent: 30, billed: 29 }
+        ];
+        renderPMProjects();
+        if (toggle && toggle.checked === false) {
+          toggle.click(); // Показываем формулы
+        }
+      });
+    }
+
+    // Загружаем проекты: сначала из URL, потом из localStorage
+    const loadedFromURL = loadPMFromURL();
+    if (!loadedFromURL && pmProjects.length === 0) {
+      loadPMProjects();
+    }
+  </script>
 </body>
+
 </html>
